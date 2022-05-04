@@ -662,12 +662,29 @@ void reshape(int width, int height) {
     //         that the same part of the scene is visible across the width of
     //         the window.
 
+    //PART D make it so we can get closer
     GLfloat nearDist = 0.01;
-    projection = Frustum(-nearDist * (float) width / (float) height,
-                         nearDist * (float) width / (float) height,
-                         -nearDist, nearDist,
-                         nearDist, 100.0);
-}
+    GLfloat left, right, bottom, top;
+    //PART E change the projection matrix depending on whether the width or the height is greater
+
+    //if the width is less than height we adjust so that we can see the same scene across the width making the bottom and top scale by the height and width of the window "squeezing" the view as the window gets smaller
+    if (width < height) {
+        left = -nearDist;
+        right = nearDist;
+        bottom = -nearDist * (float) height / (float) width;
+        top = nearDist * (float) height / (float) width;
+        }
+
+        //Else here means that the width must be be greater than the height which in that case we are making a short fat window which means we scale the left and right sides of our program by the height and width to ensure
+    else {
+        left = -nearDist * (float) width / (float) height;
+        right = nearDist * (float) width / (float) height;
+        bottom = -nearDist;
+        top = nearDist;
+        }
+
+        projection = Frustum(left, right, bottom, top, nearDist, 100.0);
+    }
 
 //----------------------------------------------------------------------------
 
