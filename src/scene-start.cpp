@@ -373,7 +373,7 @@ void drawMesh(SceneObject sceneObj) {
     // Set the model matrix - this should combine translation, rotation and scaling based on what's
     // in the sceneObj structure (see near the top of the program).
 
-    //extract angles and then rotate the model based on their angles
+    //PART B extract angles and then rotate the model based on their angles
     float horizontalAngle = sceneObj.angles[0];
     float verticalAngle =  sceneObj.angles[1];
     float zAngle =  sceneObj.angles[2];
@@ -409,6 +409,7 @@ void display(void) {
     // Set the view matrix. To start with this just moves the camera
     // backwards.  You'll need to add appropriate rotations.
 
+    // PART A added rotatex and rotatey about the vertical and horizontal axis
     view = Translate(0.0, 0.0, -viewDist) * RotateX(camRotUpAndOverDeg) * RotateY(camRotSidewaysDeg);
 
     SceneObject lightObj1 = sceneObjs[1];
@@ -434,6 +435,18 @@ void display(void) {
 
     glutSwapBuffers();
 }
+
+//PART C implement ambient, diffuse, specular and shine functions
+static void ambientDiffuse(vec2 ambDiff) {
+    sceneObjs[toolObj].ambient += (ambDiff[0]);
+    sceneObjs[toolObj].diffuse += (ambDiff[1]);
+}
+
+static void specularShine(vec2 specShin) {
+    sceneObjs[toolObj].specular += (specShin[0]);
+    sceneObjs[toolObj].shine += (specShin[1]);
+}
+
 
 //----------------------------------------------------------------------------
 //------Menus-----------------------------------------------------------------
@@ -516,10 +529,17 @@ static void materialMenu(int id) {
     if (currObject < 0) return;
     if (id == 10) {
         toolObj = currObject;
-        setToolCallbacks(adjustRedGreen, mat2(1, 0, 0, 1),
-                         adjustBlueBrightness, mat2(1, 0, 0, 1));
+        setToolCallbacks(adjustRedGreen, mat2(1.0, 0, 0, 1.0),
+                         adjustBlueBrightness, mat2(1.0, 0, 0, 10));
     }
         // You'll need to fill in the remaining menu items here.
+
+    //PART C setup ambient specular 
+    if (id == 20) {
+        toolObj = currObject;
+        setToolCallbacks(ambientDiffuse, mat2(1, 0, 0, 1),
+        specularShine, mat2(100, 0, 0, 1));
+    }
     else {
         printf("Error in materialMenu\n");
     }
@@ -556,7 +576,7 @@ static void makeMenu() {
 
     int materialMenuId = glutCreateMenu(materialMenu);
     glutAddMenuEntry("R/G/B/All", 10);
-    glutAddMenuEntry("UNIMPLEMENTED: Ambient/Diffuse/Specular/Shine", 20);
+    glutAddMenuEntry("Ambient/Diffuse/Specular/Shine", 20);
 
     int texMenuId = createArrayMenu(numTextures, textureMenuEntries, texMenu);
     int groundMenuId = createArrayMenu(numTextures, textureMenuEntries, groundMenu);
@@ -581,6 +601,7 @@ static void makeMenu() {
 }
 
 //----------------------------------------------------------------------------
+
 
 void keyboard(unsigned char key, int x, int y) {
     switch (key) {
