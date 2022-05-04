@@ -18,6 +18,7 @@
 #endif
 
 GLint windowHeight = 640, windowWidth = 960;
+int shaders;
 
 // gnatidread.cpp is the CITS3003 "Graphics n Animation Tool Interface & Data
 // Reader" code.  This file contains parts of the code that you shouldn't need
@@ -311,7 +312,18 @@ void init(void) {
     CheckError(); // Allocate texture objects
 
     // Load shaders and use the resulting shader program
-    shaderProgram = InitShader("res/shaders/vStart.glsl", "res/shaders/fStart.glsl");
+    //PART F
+    if (shaders == 0) {
+        shaderProgram = InitShader("res/shaders/vStart - F.glsl", "res/shaders/fStart - F.glsl");
+    }
+    //PART G
+    else if (shaders == 1) {
+        shaderProgram = InitShader("res/shaders/vStart - G.glsl", "res/shaders/fStart - G.glsl");
+    }
+    else{
+        printf("Not an Option");
+        exit(1);
+    }
 
     glUseProgram(shaderProgram);
     CheckError();
@@ -717,6 +729,15 @@ void fileErr(char *fileName) {
 
 int main(int argc, char *argv[]) {
     // Get the program name, excluding the directory, for the window title
+
+
+    //ask for part F or part G
+    string shader;
+    cout << "Which Shader Are We Using, 0 for F 1 for G \n";
+    cin >> shader;
+    shaders = stoi(shader);
+
+
     programName = argv[0];
     for (char *cpointer = argv[0]; *cpointer != 0; cpointer++)
         if (*cpointer == '/' || *cpointer == '\\') programName = cpointer + 1;
