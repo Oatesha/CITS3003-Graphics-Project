@@ -292,6 +292,23 @@ static void addObject(int id) {
     glutPostRedisplay();
 }
 
+//PART J duplicate object
+static void duplicateObject(int id) {	
+	sceneObjs[nObjects] = sceneObjs[id];
+	currObject = nObjects++;
+	glutPostRedisplay();
+}
+
+//PART J delete object
+static void deleteObject(int id) {
+	if ( id >= 3 ) {
+		sceneObjs[id] = sceneObjs[--nObjects];
+		toolObj -= 1;	
+		doRotate();			
+		glutPostRedisplay();
+	}
+}
+
 //------The init function-----------------------------------------------------
 
 void init(void) {
@@ -438,7 +455,7 @@ void display(void) {
 
     //PART I create second light from sceneobjs2 and get location in shader like we did for light 1
     SceneObject lightObj2 = sceneObjs[2];
-    vec4 light2Position =   RotateX(camRotUpAndOverDeg) * RotateY(camRotSidewaysDeg) * lightObj2.loc;
+    vec4 light2Position = lightObj2.loc;
 
     glUniform4fv(glGetUniformLocation(shaderProgram, "LightPosition"),
                  1, lightPosition);
@@ -621,6 +638,12 @@ static void mainmenu(int id) {
         setToolCallbacks(adjustAngleYX, mat2(400, 0, 0, -400),
                          adjustAngleZTexscale, mat2(400, 0, 0, 15));
     }
+    if (id == 5) {
+        duplicateObject(currObject);
+    }
+    if (id == 6) {
+        deleteObject(currObject);
+    }
     if (id == 99) exit(0);
 }
 
@@ -643,6 +666,8 @@ static void makeMenu() {
     glutCreateMenu(mainmenu);
     glutAddMenuEntry("Rotate/Move Camera", 50);
     glutAddSubMenu("Add object", objectId);
+    glutAddMenuEntry("Duplicate", 5);
+    glutAddMenuEntry("Delete", 6);
     glutAddMenuEntry("Position/Scale", 41);
     glutAddMenuEntry("Rotation/Texture Scale", 55);
     glutAddSubMenu("Material", materialMenuId);
