@@ -56,6 +56,8 @@ GLuint vaoIDs[numMeshes]; // and a corresponding VAO ID from glGenVertexArrays
 texture *textures[numTextures]; // An array of texture pointers - see gnatidread.h
 GLuint textureIDs[numTextures]; // Stores the IDs returned by glGenTextures
 
+float radius = -1.0;
+
 //------Scene Objects---------------------------------------------------------
 //
 // For each object in a scene we store the following
@@ -441,6 +443,13 @@ void drawMesh(SceneObject sceneObj) {
 void display(void) {
     numDisplayCalls++;
 
+    if (radius > 1.0) {
+        radius = 1.0;
+    }
+    else if (radius < -1.0) {
+        radius = -1.0;
+    }
+
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     CheckError(); // May report a harmless GL_INVALID_OPERATION with GLEW on the first frame
 
@@ -465,7 +474,11 @@ void display(void) {
                  1, light2Position);
     CheckError();
 
+    //so we can rotate the spotlight
+    vec4 rotation = view * RotateX(sceneObjs[1].angles[0]) * RotateY(sceneObjs[1].angles[1]) * RotateZ(sceneObjs[1].angles[2]) * vec4( 0.0, 1.0, 0.0, 0.0);
     
+    glUniform4fv( glGetUniformLocation(shaderProgram, "rotation"), 1, rotation); CheckError();
+    glUniform1f( glGetUniformLocation(shaderProgram, "radius"), radius); CheckError();
 
     for (int i = 0; i < nObjects; i++) {
         SceneObject so = sceneObjs[i];

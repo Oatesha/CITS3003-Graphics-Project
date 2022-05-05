@@ -11,8 +11,8 @@ uniform float Shininess;
 float a;
 float b;
 float c;
-
-
+uniform vec4 lightRot;
+uniform float radius;
 
 void main()
 {
@@ -51,6 +51,13 @@ void main()
 	float Ks2 = pow(max(dot(N,H2),0.0), Shininess);
 
 	vec3 specular2 = (Ks2 * SpecularProduct2);
+
+	//add spotlight
+	if (dot(L, normalize(-lightRot.xyz)) < radius) {
+		ambient = vec3(0.0, 0.0, 0.0);
+		diffuse = vec3(0.0, 0.0, 0.0);
+		specular = vec3(0.0, 0.0, 0.0);
+	}
 
 	if (dot(L2, N) < 0.0 ) {	
 	    specular2 = vec3(0.0, 0.0, 0.0);	
