@@ -340,6 +340,7 @@ void init(void) {
     projectionU = glGetUniformLocation(shaderProgram, "Projection");
     modelViewU = glGetUniformLocation(shaderProgram, "ModelView");
 
+    //PART I add a second light to sceneobjs[2]
     // Objects 0, and 1 are the ground and the first light.
     addObject(0); // Square for the ground
     sceneObjs[0].loc = vec4(0.0, 0.0, 0.0, 1.0);
@@ -352,6 +353,14 @@ void init(void) {
     sceneObjs[1].scale = 0.1;
     sceneObjs[1].texId = 0; // Plain texture
     sceneObjs[1].brightness = 0.2; // The light's brightness is 5 times this (below).
+
+    //add light 2 as a sphere
+    addObject(55);
+    sceneObjs[2].loc = vec4(5.0, 1.0, 1.0, 1.0);
+    sceneObjs[2].scale = 0.1;
+    sceneObjs[2].texId = 1; 
+    sceneObjs[2].brightness = 0.1; 
+
 
     addObject(rand() % numMeshes); // A test mesh
 
@@ -427,9 +436,19 @@ void display(void) {
     SceneObject lightObj1 = sceneObjs[1];
     vec4 lightPosition = view * lightObj1.loc;
 
+    //PART I create second light from sceneobjs2 and get location in shader like we did for light 1
+    SceneObject lightObj2 = sceneObjs[2];
+    vec4 light2Position =   RotateX(camRotUpAndOverDeg) * RotateY(camRotSidewaysDeg) * lightObj2.loc;
+
     glUniform4fv(glGetUniformLocation(shaderProgram, "LightPosition"),
                  1, lightPosition);
     CheckError();
+
+    glUniform4fv(glGetUniformLocation(shaderProgram, "light2Position"),
+                 1, light2Position);
+    CheckError();
+
+    
 
     for (int i = 0; i < nObjects; i++) {
         SceneObject so = sceneObjs[i];
@@ -439,7 +458,17 @@ void display(void) {
         CheckError();
         glUniform3fv(glGetUniformLocation(shaderProgram, "DiffuseProduct"), 1, so.diffuse * rgb);
         glUniform3fv(glGetUniformLocation(shaderProgram, "SpecularProduct"), 1, so.specular * rgb);
+
+
         glUniform1f(glGetUniformLocation(shaderProgram, "Shininess"), so.shine);
+
+        //send the same as above to the shader
+        vec3 rgb2 = so.rgb * lightObj2.rgb * so.brightness * lightObj2.brightness * 2.0;
+        glUniform3fv(glGetUniformLocation(shaderProgram, "AmbientProduct2"), 1, so.ambient * rgb2);
+        CheckError();
+        glUniform3fv(glGetUniformLocation(shaderProgram, "DiffuseProduct2"), 1, so.diffuse * rgb2);
+        glUniform3fv(glGetUniformLocation(shaderProgram, "SpecularProduct2"), 1, so.specular * rgb2);
+
         CheckError();
 
         drawMesh(sceneObjs[i]);
@@ -508,6 +537,18 @@ static void lightMenu(int id) {
         toolObj = 1;
         setToolCallbacks(adjustRedGreen, mat2(1.0, 0, 0, 1.0),
                          adjustBlueBrightness, mat2(1.0, 0, 0, 1.0));
+    }
+    else if (id == 80) {
+        toolObj = 2;
+        setToolCallbacks(adjustLocXZ, camRotZ(),
+                         adjustBrightnessY, mat2(1.0, 0.0, 0.0, 10.0));
+    }
+    else if (id >= 81 && id <= 84) {
+        toolObj = 2;
+        setToolCallbacks(adjustRedGreen, mat2(1.0, 0, 0, 1.0),
+                         adjustBlueBrightness, mat2(1.0, 0, 0, 1.0));
+        
+
     } else {
         printf("Error in lightMenu\n");
         exit(1);
