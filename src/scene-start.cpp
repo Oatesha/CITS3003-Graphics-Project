@@ -297,7 +297,7 @@ static void addObject(int id) {
 //PART J duplicate object
 static void duplicateObject(int id) {	
 	sceneObjs[nObjects] = sceneObjs[id];
-	currObject = nObjects++;
+	toolObj = currObject = nObjects++;
 	glutPostRedisplay();
 }
 
@@ -305,8 +305,7 @@ static void duplicateObject(int id) {
 static void deleteObject(int id) {
 	if ( id >= 3 ) {
 		sceneObjs[id] = sceneObjs[--nObjects];
-		toolObj -= 1;	
-		doRotate();			
+        toolObj = currObject -= 1;		
 		glutPostRedisplay();
 	}
 }

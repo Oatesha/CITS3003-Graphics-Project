@@ -26,10 +26,10 @@ void main()
 
 
     // The vector to the light from the vertex    
-    vec3 Lvec = LightPosition.xyz - pos;
+    vec3 fL = LightPosition.xyz - pos;
     
     //find distance of the vector to calculate the attenuation factor
-    float distLightVector = length(Lvec);
+    float distLightVector = length(fL);
 
 
     //attenuation with 1/a+bd+cd^2 not sure if this is too quickly becoming dark but It seemed to be a happy middle ground compared to having all of the coefficients 1
@@ -39,12 +39,11 @@ void main()
     float attenuation = (1.0/(a + (b * distLightVector) + (c * (distLightVector * distLightVector))));
 
     // Unit direction vectors for Blinn-Phong shading calculation
-    vec3 L = normalize( Lvec );   // Direction to the light source
-    vec3 E = normalize( -pos );   // Direction to the eye/camera
-    vec3 H = normalize( L + E );  // Halfway vector
+    vec3 L = normalize( fL );   
+    vec3 V = normalize( -pos );   
+    vec3 H = normalize( L + V );  
 
-    // Transform vertex normal into eye coordinates (assumes scaling
-    // is uniform across dimensions)
+    // Transform vertex normal into eye coordinates
     vec3 N = normalize( (ModelView*vec4(vNormal, 0.0)).xyz );
 
     // Compute terms in the illumination equation
