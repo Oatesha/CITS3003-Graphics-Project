@@ -7,9 +7,9 @@ varying vec4 color;
 
 uniform mat4 ModelView;
 uniform mat4 Projection;
-uniform vec4 LightPosition, light2Position;
+uniform vec4 LightPosition, light2Position, light3Position;
 
-varying vec3 fN, fV, fL, fL2;
+varying vec3 fN, fV, fL, fL2, fL3;
 
 
 void main()
@@ -25,6 +25,7 @@ void main()
     fV = -pos;   
     fL = LightPosition.xyz - pos;
     fL2 = light2Position.xyz;
+    fL3 = light3Position.xyz - pos;
     
     gl_Position = Projection * ModelView * vpos;
     texCoord = vTexCoord;

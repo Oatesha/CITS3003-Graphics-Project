@@ -1,11 +1,11 @@
 varying vec4 color;
 varying vec2 texCoord;  
-varying vec3 fN, fV, fL, fL2;
+varying vec3 fN, fV, fL, fL2, fL3;
 
 uniform sampler2D texture;
 uniform float texScale;
 
-uniform vec3 AmbientProduct, DiffuseProduct, SpecularProduct, AmbientProduct2, DiffuseProduct2, SpecularProduct2;
+uniform vec3 AmbientProduct, DiffuseProduct, SpecularProduct, AmbientProduct2, DiffuseProduct2, SpecularProduct2, AmbientProduct3, DiffuseProduct3, SpecularProduct3;
 uniform mat4 ModelView;
 uniform float Shininess;
 float a;
@@ -21,7 +21,7 @@ void main()
     vec3 V = normalize(fV);
 	vec3 globalAmbient = vec3(0.1, 0.1, 0.1);
 
-	if (dot(fL, normalize(fL)) < 1.0) {
+	if (dot(fL3, normalize(fL3)) < 1.0) {
 		//attenuation less harsh in the form of 1/a+bd+cd^2
 		float distLightVector = length(fL);
 		a = 0.5;
@@ -54,18 +54,29 @@ void main()
 
 		vec3 specular2 = (Ks2 * SpecularProduct2);
 
-		//add spotlight
-
-			
-		
-
 		if (dot(L2, N) < 0.0 ) {	
 			specular2 = vec3(0.0, 0.0, 0.0);	
 		}
+		vec3 L3 = normalize(fL3);	
+		vec3 H3 = normalize(fL3+V);
 
-		vec4 color = vec4(globalAmbient + ambient + diffuse + ambient2 + diffuse2, 1.0);
+		vec3 ambient3 = AmbientProduct3;	
+		float Kd3 = max(dot(L3,N),0.0);
 
-		gl_FragColor = color * texture2D( texture, texCoord * texScale) + vec4(specular + specular2, 1.0);
+		vec3 diffuse3 = (Kd3 * DiffuseProduct3);	
+		float Ks3 = pow(max(dot(N,H3),0.0), Shininess);
+
+		vec3 specular3 = (Ks3 * SpecularProduct2);
+
+		if (dot(L3, N) < 0.0 ) {	
+			specular3 = vec3(0.0, 0.0, 0.0);	
+		}
+
+
+
+		vec4 color = vec4(globalAmbient + ambient + diffuse + ambient2 + diffuse2 + ambient3 + diffuse3, 1.0);
+
+		gl_FragColor = color * texture2D( texture, texCoord * texScale) + vec4(specular + specular2 + specular3, 1.0);
 	}
 	else {
 		vec4 color = vec4(globalAmbient, 1.0);

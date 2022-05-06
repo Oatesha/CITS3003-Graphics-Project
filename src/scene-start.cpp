@@ -377,7 +377,13 @@ void init(void) {
     sceneObjs[2].loc = vec4(5.0, 1.0, 1.0, 1.0);
     sceneObjs[2].scale = 0.1;
     sceneObjs[2].texId = 1; 
-    sceneObjs[2].brightness = 0.1; 
+    sceneObjs[2].brightness = 0.1;
+
+    addObject(55);
+    sceneObjs[3].loc = vec4(3.0, 1.0, 1.0, 1.0);
+    sceneObjs[3].scale = 0.1;
+    sceneObjs[3].texId = 2; 
+    sceneObjs[3].brightness = 0.1; 
 
 
     addObject(rand() % numMeshes); // A test mesh
@@ -465,6 +471,9 @@ void display(void) {
     SceneObject lightObj2 = sceneObjs[2];
     vec4 light2Position = lightObj2.loc;
 
+    SceneObject lightObj3 = sceneObjs[3];
+    vec4 light3Position = lightObj3.loc;
+
     glUniform4fv(glGetUniformLocation(shaderProgram, "LightPosition"),
                  1, lightPosition);
     CheckError();
@@ -473,11 +482,10 @@ void display(void) {
                  1, light2Position);
     CheckError();
 
-    //so we can rotate the spotlight
-    vec4 rotation = view * RotateX(sceneObjs[1].angles[0]) * RotateY(sceneObjs[1].angles[1]) * RotateZ(sceneObjs[1].angles[2]) * vec4( 0.0, 1.0, 0.0, 0.0);
-    
-    glUniform4fv( glGetUniformLocation(shaderProgram, "rotation"), 1, rotation); CheckError();
-    glUniform1f( glGetUniformLocation(shaderProgram, "radius"), radius); CheckError();
+    glUniform4fv(glGetUniformLocation(shaderProgram, "light3Position"),
+                 1, light3Position);
+    CheckError();
+
 
     for (int i = 0; i < nObjects; i++) {
         SceneObject so = sceneObjs[i];
@@ -497,6 +505,12 @@ void display(void) {
         CheckError();
         glUniform3fv(glGetUniformLocation(shaderProgram, "DiffuseProduct2"), 1, so.diffuse * rgb2);
         glUniform3fv(glGetUniformLocation(shaderProgram, "SpecularProduct2"), 1, so.specular * rgb2);
+
+        vec3 rgb3 = so.rgb * lightObj3.rgb * so.brightness * lightObj3.brightness * 2.0;
+        glUniform3fv(glGetUniformLocation(shaderProgram, "AmbientProduct3"), 1, so.ambient * rgb3);
+        CheckError();
+        glUniform3fv(glGetUniformLocation(shaderProgram, "DiffuseProduct3"), 1, so.diffuse * rgb3);
+        glUniform3fv(glGetUniformLocation(shaderProgram, "SpecularProduct3"), 1, so.specular * rgb3);
 
         CheckError();
 
@@ -576,6 +590,10 @@ static void lightMenu(int id) {
         toolObj = 2;
         setToolCallbacks(adjustRedGreen, mat2(1.0, 0, 0, 1.0),
                          adjustBlueBrightness, mat2(1.0, 0, 0, 1.0));
+    } else if (id == 86) {
+        toolObj = 3;
+        setToolCallbacks(adjustLocXZ, camRotZ(),
+                         adjustBrightnessY, mat2(1.0, 0.0, 0.0, 10.0));
         
 
     } else {
@@ -674,6 +692,7 @@ static void makeMenu() {
     glutAddMenuEntry("R/G/B/All Light 1", 71);
     glutAddMenuEntry("Move Light 2", 80);
     glutAddMenuEntry("R/G/B/All Light 2", 81);
+    glutAddMenuEntry("Move Light 3", 86);
 
     glutCreateMenu(mainmenu);
     glutAddMenuEntry("Rotate/Move Camera", 50);
